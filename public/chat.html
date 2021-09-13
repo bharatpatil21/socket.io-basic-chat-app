@@ -1,0 +1,58 @@
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+
+<style>
+  input {
+    width: 100%;
+    height: 35px;
+  }
+
+  #messages {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+  #messages li {
+    padding: 5px 10px;
+  }
+  #messages li:nth-child(odd) {
+    background: #eee;
+  }
+</style>
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm-12">
+      <form id="message-form">
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="user-message" placeholder="Enter your message">
+        </div>
+        <div class="col-sm-2">
+          <input class="btn btn-primary" type="submit" value="Send!"/>
+        </div>
+      </form>
+      <ul id="messages">
+
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socketio = io("http://localhost:9000");
+  socketio.on("messageFromServer", (data) => {
+    console.log(data);
+    socketio.emit('messageToServer', { data: "This is form client" });
+  });
+
+  document.querySelector("#message-form").addEventListener('submit', (event) => {
+    event.preventDefault();
+    const newMessage = document.querySelector("#user-message").value;
+    socketio.emit('newMessageToServer', { text: newMessage });
+  })
+
+  socketio.on('messageToClient', (data) => {
+    document.querySelector("#messages").innerHTML += `<li>${data.text}</li>`;
+  });
+</script>
